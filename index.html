@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Scanner</title>
+    <style>
+        #preview {
+            width: 100%;
+            height: 300px;
+            border: 1px solid black;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        /* 텍스트 영역 스타일 추가 */
+        #batchNumbers {
+            width: 100%;
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code 스캐너</h1>
+    
+    <div class="input-group">
+        <label for="materialCode">자재 코드:</label>
+        <input type="text" id="materialCode" placeholder="자재 코드를 입력하세요">
+    </div>
+    <div class="input-group">
+        <label for="batchNumbers">배치 번호들:</label>
+        <textarea id="batchNumbers" placeholder="배치 번호들을 한 줄에 하나씩 입력하세요."></textarea>
+    </div>
+
+    <video id="preview"></video>
+    <p>스캔 결과: <span id="result">없음</span></p>
+    <p>비교 결과: <span id="comparisonResult" style="font-weight: bold;"></span></p>
+
+    <script src="https://rawgit.com/schonfr/instascan/master/instascan.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
