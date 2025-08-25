@@ -1,6 +1,6 @@
 // Instascan 라이브러리를 사용해 스캐너를 생성합니다.
 let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-const startButton = document.getElementById('startButton');
+const startButton = document.getElementById('startButton'); // 이 변수가 필요합니다.
 
 // 스캔 성공 시 발생하는 이벤트 리스너를 추가합니다.
 scanner.addListener('scan', function (content) {
@@ -33,11 +33,12 @@ scanner.addListener('scan', function (content) {
 });
 
 // 시작 버튼을 클릭했을 때만 카메라를 켜도록 변경합니다.
+// 이 이벤트 리스너가 있어야 버튼이 작동합니다.
 startButton.addEventListener('click', function() {
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
             scanner.start(cameras[0]);
-            startButton.style.display = 'none'; // 버튼 숨기기
+            startButton.style.display = 'none'; // 버튼을 숨깁니다.
         } else {
             console.error('카메라를 찾을 수 없습니다.');
             alert('카메라가 없어 QR 코드를 스캔할 수 없습니다. 😥');
@@ -46,3 +47,4 @@ startButton.addEventListener('click', function() {
         console.error(e);
     });
 });
+
