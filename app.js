@@ -32,8 +32,9 @@ scanner.addListener('scan', function (content) {
 startButton.addEventListener('click', function() {
     Instascan.Camera.getCameras().then(function (cameras) {
         if (cameras.length > 0) {
-            scanner.start(cameras[0]);
-            startButton.style.display = 'none'; // 버튼을 숨깁니다.
+            let selectedCamera = cameras.find(cam => cam.name.toLowerCase().includes('back')) || cameras[0];
+            scanner.start(selectedCamera);
+            startButton.style.display = 'none';
         } else {
             console.error('카메라를 찾을 수 없습니다.');
             alert('카메라가 없어 QR 코드를 스캔할 수 없습니다. 😥');
@@ -42,5 +43,4 @@ startButton.addEventListener('click', function() {
         console.error(e);
     });
 });
-
 
