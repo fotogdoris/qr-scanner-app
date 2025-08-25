@@ -1,19 +1,23 @@
-// Instascan 라이브러리를 사용해 스캐너를 생성합니다.
-let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+const materialCodeInput = document.getElementById('materialCode');
+const batchNumbersInput = document.getElementById('batchNumbers');
+const resultElement = document.getElementById('result');
+const comparisonResultElement = document.getElementById('comparisonResult');
 const startButton = document.getElementById('startButton');
+const stopButton = document.getElementById('stopButton');
 
-// 스캔 성공 시 발생하는 이벤트 리스너를 추가합니다.
-scanner.addListener('scan', function (content) {
-    document.getElementById('result').textContent = content;
-    
-    const scannedData = content.split('_');
+// 스캐너 객체 생성
+const html5QrCode = new Html5Qrcode("reader");
+
+// QR 코드 스캔 성공 시 실행될 함수
+const onScanSuccess = (decodedText, decodedResult) => {
+    resultElement.textContent = decodedText;
+
+    const scannedData = decodedText.split('_');
     const scannedMaterialCode = scannedData[0];
     const scannedBatchNumber = scannedData[1];
 
-    const inputMaterialCode = document.getElementById('materialCode').value.trim();
-    const inputBatchNumbers = document.getElementById('batchNumbers').value.trim().split('\n').map(item => item.trim());
-
-    const comparisonResultElement = document.getElementById('comparisonResult');
+    const inputMaterialCode = materialCodeInput.value.trim();
+    const inputBatchNumbers = batchNumbersInput.value.trim().split('\n').map(item => item.trim());
 
     if (scannedMaterialCode === inputMaterialCode && inputBatchNumbers.includes(scannedBatchNumber)) {
         comparisonResultElement.textContent = 'OK ✅';
@@ -24,23 +28,41 @@ scanner.addListener('scan', function (content) {
         comparisonResultElement.style.color = 'red';
         alert('🔴 NG: 자재 코드 또는 배치 번호가 일치하지 않습니다.');
     }
+};
 
-    scanner.stop(); // 스캔 성공 후 스캐너를 중지합니다.
-});
+// QR 코드 스캔 에러 시 실행될 함수
+const onScanFailure = (error) => {
+    // 에러 로그는 콘솔에만 표시합니다.
+    console.warn(`QR code scan error: ${error}`);
+};
 
-// 시작 버튼을 클릭했을 때만 카메라를 켜도록 변경합니다.
-startButton.addEventListener('click', function() {
-    Instascan.Camera.getCameras().then(function (cameras) {
-        if (cameras.length > 0) {
-            let selectedCamera = cameras.find(cam => cam.name.toLowerCase().includes('back')) || cameras[0];
-            scanner.start(selectedCamera);
-            startButton.style.display = 'none';
-        } else {
-            console.error('카메라를 찾을 수 없습니다.');
-            alert('카메라가 없어 QR 코드를 스캔할 수 없습니다. 😥');
-        }
-    }).catch(function (e) {
-        console.error(e);
+// '스캔 시작' 버튼 클릭 이벤트
+startButton.addEventListener('click', () => {
+    // HTML5-QR-Code 스캐너 시작
+    html5QrCode.start({ facingMode: "environment" }, {
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
+    }, onScanSuccess, onScanFailure)
+    .then(() => {
+        startButton.style.display = 'none';
+        stopButton.style.display = 'inline-block';
+    })
+    .catch(err => {
+        console.error("스캐너 시작 오류: ", err);
+        alert('카메라 시작에 실패했습니다. 권한을 확인해 주세요.');
     });
 });
 
+// '스캔 중지' 버튼 클릭 이벤트
+stopButton.addEventListener('click', () => {
+    html5QrCode.stop()
+    .then(ignore => {
+        startButton.style.display = 'inline-block';
+        stopButton.style.display = 'none';
+    })
+    .catch(err => {
+        console.error("스캐너 중지 오류: ", err);
+    });
+});
+
+stopButton.style.display = 'none'; // 초기에는 중지 버튼 숨기기
