@@ -1,5 +1,6 @@
 // Instascan 라이브러리를 사용해 스캐너를 생성합니다.
 let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+const startButton = document.getElementById('startButton');
 
 // 스캔 성공 시 발생하는 이벤트 리스너를 추가합니다.
 scanner.addListener('scan', function (content) {
@@ -18,7 +19,6 @@ scanner.addListener('scan', function (content) {
     const comparisonResultElement = document.getElementById('comparisonResult');
 
     // 입력값과 스캔값 비교
-    // 자재 코드가 일치하고, 스캔된 배치 번호가 입력된 배치 번호 목록에 포함되어 있는지 확인합니다.
     if (scannedMaterialCode === inputMaterialCode && inputBatchNumbers.includes(scannedBatchNumber)) {
         comparisonResultElement.textContent = 'OK ✅';
         comparisonResultElement.style.color = 'green';
@@ -32,14 +32,17 @@ scanner.addListener('scan', function (content) {
     scanner.stop(); // 스캔 성공 후 스캐너를 중지합니다.
 });
 
-// 웹캠 목록을 가져와 첫 번째 웹캠을 사용합니다.
-Instascan.Camera.getCameras().then(function (cameras) {
-    if (cameras.length > 0) {
-        scanner.start(cameras[0]);
-    } else {
-        console.error('카메라를 찾을 수 없습니다.');
-        alert('카메라가 없어 QR 코드를 스캔할 수 없습니다. 😥');
-    }
-}).catch(function (e) {
-    console.error(e);
+// 시작 버튼을 클릭했을 때만 카메라를 켜도록 변경합니다.
+startButton.addEventListener('click', function() {
+    Instascan.Camera.getCameras().then(function (cameras) {
+        if (cameras.length > 0) {
+            scanner.start(cameras[0]);
+            startButton.style.display = 'none'; // 버튼 숨기기
+        } else {
+            console.error('카메라를 찾을 수 없습니다.');
+            alert('카메라가 없어 QR 코드를 스캔할 수 없습니다. 😥');
+        }
+    }).catch(function (e) {
+        console.error(e);
+    });
 });
